@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2023 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package com.example.dessertclicker
 
@@ -45,6 +30,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Icon
@@ -174,11 +160,16 @@ private fun shareSoldDessertsInformation(intentContext: Context, dessertsSold: I
     }
 }
 
+private fun resetGameState(
+    onReset: () -> Unit
+) {
+    onReset()
+}
+
 @Composable
 private fun DessertClickerApp(
     desserts: List<Dessert>
 ) {
-
     var revenue by rememberSaveable { mutableStateOf(0) }
     var dessertsSold by rememberSaveable { mutableStateOf(0) }
 
@@ -203,6 +194,14 @@ private fun DessertClickerApp(
                         revenue = revenue
                     )
                 },
+                onResetButtonClicked = {
+                    resetGameState {
+                        revenue = 0
+                        dessertsSold = 0
+                        currentDessertPrice = desserts[currentDessertIndex].price
+                        currentDessertImageId = desserts[currentDessertIndex].imageId
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
@@ -220,7 +219,6 @@ private fun DessertClickerApp(
             dessertsSold = dessertsSold,
             dessertImageId = currentDessertImageId,
             onDessertClicked = {
-
                 // Update the revenue
                 revenue += currentDessertPrice
                 dessertsSold++
@@ -238,6 +236,7 @@ private fun DessertClickerApp(
 @Composable
 private fun DessertClickerAppBar(
     onShareButtonClicked: () -> Unit,
+    onResetButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -251,15 +250,27 @@ private fun DessertClickerAppBar(
             color = MaterialTheme.colorScheme.onPrimary,
             style = MaterialTheme.typography.titleLarge,
         )
-        IconButton(
-            onClick = onShareButtonClicked,
-            modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_medium)),
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Share,
-                contentDescription = stringResource(R.string.share),
-                tint = MaterialTheme.colorScheme.onPrimary
-            )
+        Row {
+            IconButton(
+                onClick = onShareButtonClicked,
+                modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_medium)),
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Share,
+                    contentDescription = stringResource(R.string.share),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+            IconButton(
+                onClick = onResetButtonClicked,
+                modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_medium)),
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Refresh,
+                    contentDescription = stringResource(R.string.reset),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
     }
 }
